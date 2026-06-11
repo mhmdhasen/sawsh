@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "976419916643",
+    "project_id": "taxico-mbile",
+    "storage_bucket": "taxico-mbile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976419916643:android:8934dd9b7399999f86a156",
+        "android_client_info": {
+          "package_name": "com.taxico.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8dUTOoWUw2eScRHHpj-jlGCW7dz9-_Qc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,0 @@
-<resources>
-    <style name="Theme.SawaShare" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#FFFFD600</item>
-    </style>
-</resources>

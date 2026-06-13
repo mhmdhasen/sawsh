@@ -25,7 +25,30 @@ jobs:
         run: |
           # Fix corrupted wrapper jar if necessary
           mkdir -p gradle/wrapper
-          curl -L https://github.com/gradle/gradle/raw/v8.5.0/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+          
+          # Download gradle-wrapper.jar with retry logic
+          MAX_ATTEMPTS=3
+          ATTEMPT=1
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            curl -L -f https://github.com/gradle/gradle/raw/v8.5.0/gradle/wrapper/gradle-wrapper.jar \
+              -o gradle/wrapper/gradle-wrapper.jar
+            
+            # Verify the file is not empty and is a valid JAR
+            if [ -s gradle/wrapper/gradle-wrapper.jar ] && file gradle/wrapper/gradle-wrapper.jar | grep -q "Java"; then
+              echo "JAR file downloaded successfully"
+              break
+            else
+              echo "Attempt $ATTEMPT: Failed to download valid JAR file, retrying..."
+              rm -f gradle/wrapper/gradle-wrapper.jar
+              ATTEMPT=$((ATTEMPT + 1))
+              sleep 2
+            fi
+          done
+          
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Failed to download gradle-wrapper.jar after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
           
           if [ -f "gradlew" ]; then
             chmod +x gradlew

@@ -21,40 +21,33 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Fix and Grant execute permission for gradlew
+      - name: Ensure Gradle wrapper exists
         run: |
-          # Fix corrupted wrapper jar if necessary
+          # Ensure wrapper directory exists
           mkdir -p gradle/wrapper
-          
-          # Download gradle-wrapper.jar with retry logic
-          MAX_ATTEMPTS=3
-          ATTEMPT=1
-          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "Attempt $ATTEMPT: Downloading gradle-wrapper.jar..."
-            
-            # Use the gradle wrapper distribution URL instead
+
+          # If wrapper JAR missing, try to download from Maven Central (reliable source)
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "gradle-wrapper.jar missing — attempting to download from Maven Central..."
             if curl -L -f -S --max-time 30 \
-              https://services.gradle.org/distributions/gradle-8.5-wrapper.jar \
+              https://repo1.maven.org/maven2/org/gradle/gradle-wrapper/8.5/gradle-wrapper-8.5.jar \
               -o gradle/wrapper/gradle-wrapper.jar 2>/dev/null; then
-              
-              # Verify the file is not empty and is a valid JAR
-              if [ -s gradle/wrapper/gradle-wrapper.jar ] && file gradle/wrapper/gradle-wrapper.jar | grep -q "Java"; then
-                echo "JAR file downloaded successfully"
-                break
+              echo "Downloaded gradle-wrapper.jar from Maven Central"
+            else
+              echo "Download failed — attempting to generate wrapper with installed Gradle"
+              # Attempt to generate the wrapper if a system Gradle is available
+              if command -v gradle >/dev/null 2>&1; then
+                gradle wrapper --gradle-version 8.5 || true
+              else
+                echo "No system Gradle available to generate wrapper"
               fi
             fi
-            
-            echo "Attempt $ATTEMPT: Failed to download valid JAR file, retrying..."
-            rm -f gradle/wrapper/gradle-wrapper.jar
-            ATTEMPT=$((ATTEMPT + 1))
-            sleep 2
-          done
-          
-          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Failed to download gradle-wrapper.jar after $MAX_ATTEMPTS attempts"
-            exit 1
+          else
+            echo "gradle-wrapper.jar already present"
           fi
-          
+
+      - name: Fix and Grant execute permission for gradlew
+        run: |
           if [ -f "gradlew" ]; then
             chmod +x gradlew
           elif [ -f "android/gradlew" ]; then

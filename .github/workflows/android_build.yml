@@ -30,19 +30,24 @@ jobs:
           MAX_ATTEMPTS=3
           ATTEMPT=1
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            curl -L -f https://github.com/gradle/gradle/raw/v8.5.0/gradle/wrapper/gradle-wrapper.jar \
-              -o gradle/wrapper/gradle-wrapper.jar
+            echo "Attempt $ATTEMPT: Downloading gradle-wrapper.jar..."
             
-            # Verify the file is not empty and is a valid JAR
-            if [ -s gradle/wrapper/gradle-wrapper.jar ] && file gradle/wrapper/gradle-wrapper.jar | grep -q "Java"; then
-              echo "JAR file downloaded successfully"
-              break
-            else
-              echo "Attempt $ATTEMPT: Failed to download valid JAR file, retrying..."
-              rm -f gradle/wrapper/gradle-wrapper.jar
-              ATTEMPT=$((ATTEMPT + 1))
-              sleep 2
+            # Use the gradle wrapper distribution URL instead
+            if curl -L -f -S --max-time 30 \
+              https://services.gradle.org/distributions/gradle-8.5-wrapper.jar \
+              -o gradle/wrapper/gradle-wrapper.jar 2>/dev/null; then
+              
+              # Verify the file is not empty and is a valid JAR
+              if [ -s gradle/wrapper/gradle-wrapper.jar ] && file gradle/wrapper/gradle-wrapper.jar | grep -q "Java"; then
+                echo "JAR file downloaded successfully"
+                break
+              fi
             fi
+            
+            echo "Attempt $ATTEMPT: Failed to download valid JAR file, retrying..."
+            rm -f gradle/wrapper/gradle-wrapper.jar
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 2
           done
           
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then

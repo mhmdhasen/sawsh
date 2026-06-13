@@ -24,9 +24,11 @@ jobs:
       - name: Validate and Regenerate Gradle Wrapper if needed
         run: |
           echo "Checking gradle-wrapper.jar..."
-          if [ ! -f gradle/wrapper/gradle-wrapper.jar ] || [ ! -s gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "⚠️ Gradle wrapper missing or corrupted, regenerating..."
-            rm -rf gradle/wrapper/gradle-wrapper.jar
+          # Check if file exists, is not empty, and has valid JAR structure
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ] || [ ! -s gradle/wrapper/gradle-wrapper.jar ] || ! jar tf gradle/wrapper/gradle-wrapper.jar > /dev/null 2>&1; then
+            echo "⚠️ Gradle wrapper missing, corrupted, or invalid, regenerating..."
+            rm -rf gradle/wrapper/
+            mkdir -p gradle/wrapper/
             chmod +x gradlew
             ./gradlew wrapper --gradle-version=8.5 --distribution-type=bin
           else

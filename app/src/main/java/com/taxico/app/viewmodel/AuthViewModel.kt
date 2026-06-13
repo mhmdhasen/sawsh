@@ -10,8 +10,6 @@ import com.taxico.app.data.model.User
 import io.github.jan.tennert.supabase.gotrue.auth
 import io.github.jan.tennert.supabase.gotrue.providers.builtin.Email
 import io.github.jan.tennert.supabase.postgrest.postgrest
-// CRITICAL IMPORTS: This exposes the `eq` function inside the filter block
-import io.github.jan.tennert.supabase.postgrest.query.filter.PostgrestFilterBuilder
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
@@ -46,13 +44,10 @@ class AuthViewModel : ViewModel() {
             isLoading = true
             error = null
             try {
-                // In Supabase Kotlin, phone login usually involves OTP
-                // This is a simplified version matching the web app's flow
+                // FIXED: Removed the redundant 'filter { }' wrapper block
                 val user = SupabaseManager.client.postgrest["users"]
                     .select {
-                        filter {
-                            eq("phone", phone)
-                        }
+                        eq("phone", phone)
                     }.decodeSingleOrNull<User>()
                 
                 if (user != null) {
@@ -72,11 +67,10 @@ class AuthViewModel : ViewModel() {
     private suspend fun fetchUserProfile(onSuccess: () -> Unit) {
         val userUid = SupabaseManager.client.auth.currentUserOrNull()?.id
         if (userUid != null) {
+            // FIXED: Removed the redundant 'filter { }' wrapper block
             val user = SupabaseManager.client.postgrest["users"]
                 .select {
-                    filter {
-                        eq("uid", userUid)
-                    }
+                    eq("uid", userUid)
                 }.decodeSingle<User>()
             currentUser = user
             onSuccess()

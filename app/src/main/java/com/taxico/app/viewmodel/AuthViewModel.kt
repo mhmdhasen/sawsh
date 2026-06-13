@@ -10,6 +10,9 @@ import com.taxico.app.data.model.User
 import io.github.jan.tennert.supabase.gotrue.auth
 import io.github.jan.tennert.supabase.gotrue.providers.builtin.Email
 import io.github.jan.tennert.supabase.postgrest.postgrest
+// CRITICAL FIX: Explicitly import the Postgrest query filters and extension functions
+import io.github.jan.tennert.supabase.postgrest.query.filter.eq
+import io.github.jan.tennert.supabase.postgrest.query.columns.ColumnsBuilder
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
@@ -44,7 +47,6 @@ class AuthViewModel : ViewModel() {
             isLoading = true
             error = null
             try {
-                // FIXED: Removed the redundant 'filter { }' wrapper block
                 val user = SupabaseManager.client.postgrest["users"]
                     .select {
                         eq("phone", phone)
@@ -67,7 +69,6 @@ class AuthViewModel : ViewModel() {
     private suspend fun fetchUserProfile(onSuccess: () -> Unit) {
         val userUid = SupabaseManager.client.auth.currentUserOrNull()?.id
         if (userUid != null) {
-            // FIXED: Removed the redundant 'filter { }' wrapper block
             val user = SupabaseManager.client.postgrest["users"]
                 .select {
                     eq("uid", userUid)

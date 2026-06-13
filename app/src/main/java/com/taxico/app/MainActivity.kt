@@ -44,8 +44,16 @@ fun AppNavigation() {
         }
         composable("login") {
             LoginScreen(onLoginSuccess = {
-                // Navigate to dashboard
+                navController.navigate("rider_dashboard") {
+                    popUpTo("login") { inclusive = true }
+                }
             })
+        }
+        composable("rider_dashboard") {
+            RiderDashboard()
+        }
+        composable("driver_dashboard") {
+            DriverDashboard()
         }
     }
 }

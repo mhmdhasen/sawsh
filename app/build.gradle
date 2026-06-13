@@ -2,6 +2,9 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
+    
+    // CRITICAL FIX: This plugin enables @Serializable code compilation for Supabase
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22'
 }
 
 android {

@@ -21,13 +21,31 @@ jobs:
           java-version: '17'
           cache: gradle
 
+      - name: Validate and Regenerate Gradle Wrapper if needed
+        run: |
+          echo "Checking gradle-wrapper.jar..."
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ] || [ ! -s gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "⚠️ Gradle wrapper missing or corrupted, regenerating..."
+            rm -rf gradle/wrapper/gradle-wrapper.jar
+            chmod +x gradlew
+            ./gradlew wrapper --gradle-version=8.5 --distribution-type=bin
+          else
+            echo "✓ Gradle wrapper exists and is valid"
+          fi
+
       - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Verify Gradle Wrapper
         run: |
+          echo "Repository structure:"
           ls -la
-          ls -la gradle/wrapper
+          echo ""
+          echo "Gradle wrapper structure:"
+          ls -la gradle/wrapper/
+          echo ""
+          echo "Gradle wrapper JAR file info:"
+          file gradle/wrapper/gradle-wrapper.jar
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug

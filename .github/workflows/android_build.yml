@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Setup Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: '17'
@@ -26,11 +26,11 @@ jobs:
           echo "Checking gradle-wrapper.jar..."
           # Check if file exists, is not empty, and has valid JAR structure
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ] || [ ! -s gradle/wrapper/gradle-wrapper.jar ] || ! jar tf gradle/wrapper/gradle-wrapper.jar > /dev/null 2>&1; then
-            echo "⚠️ Gradle wrapper missing, corrupted, or invalid, regenerating..."
+            echo "⚠️ Gradle wrapper missing, corrupted, or invalid, regenerating using global system Gradle..."
             rm -rf gradle/wrapper/
-            mkdir -p gradle/wrapper/
-            chmod +x gradlew
-            ./gradlew wrapper --gradle-version=8.5 --distribution-type=bin
+            
+            # CRITICAL FIX: Use the global system 'gradle' command instead of the local broken wrapper script
+            gradle wrapper --gradle-version=8.5 --distribution-type=bin
           else
             echo "✓ Gradle wrapper exists and is valid"
           fi
@@ -43,11 +43,17 @@ jobs:
           echo "Repository structure:"
           ls -la
           echo ""
+          # Create directory if it doesn't exist just to prevent 'ls' from failing the step
+          mkdir -p gradle/wrapper/
           echo "Gradle wrapper structure:"
           ls -la gradle/wrapper/
           echo ""
           echo "Gradle wrapper JAR file info:"
-          file gradle/wrapper/gradle-wrapper.jar
+          if [ -f gradle/wrapper/gradle-wrapper.jar ]; then
+            file gradle/wrapper/gradle-wrapper.jar
+          else
+            echo "No JAR file found!"
+          fi
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug

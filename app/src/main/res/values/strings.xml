@@ -1,3 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">SawaShare</string>
+    <string name="app_name">SawaSHare</string>
+    <string name="title_activity_main">SawaSHare</string>
+    <string name="package_name">com.taxico.app</string>
+    <string name="custom_url_scheme">com.taxico.app</string>
 </resources>

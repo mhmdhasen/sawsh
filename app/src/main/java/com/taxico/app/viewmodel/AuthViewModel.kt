@@ -10,6 +10,8 @@ import com.taxico.app.data.model.User
 import io.github.jan.tennert.supabase.gotrue.auth
 import io.github.jan.tennert.supabase.gotrue.providers.builtin.Email
 import io.github.jan.tennert.supabase.postgrest.postgrest
+// CRITICAL IMPORTS: This exposes the `eq` function inside the filter block
+import io.github.jan.tennert.supabase.postgrest.query.filter.PostgrestFilterBuilder
 import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
